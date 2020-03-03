@@ -8,12 +8,12 @@
 
 angular
 	.module('swaggerUi', ['ng'])
-	.directive('swaggerUi', function($injector) {
+	.directive('swaggerUi', function ($injector) {
 
 		return {
 			restrict: 'A',
 			controller: 'swaggerUiController',
-			templateUrl: function(element, attrs) {
+			templateUrl: function (element, attrs) {
 				return attrs.templateUrl || 'templates/swagger-ui.html';
 			},
 			scope: {
@@ -55,7 +55,7 @@ angular
 				// Allows rendering an external OpenApi specification (string or object, optional)
 				input: '=?'
 			},
-			link: function(scope) {
+			link: function (scope) {
 				// check parameters
 				if (!scope.trustedSources && !$injector.has('$sanitize')) {
 					console.warn('AngularSwaggerUI: You must use ngSanitize OR set trusted-sources=true as directive param if OpenApi specifications are loaded from trusted sources');

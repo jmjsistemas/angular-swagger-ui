@@ -8,22 +8,22 @@
 
 angular
 	.module('swaggerUiAuthorization', ['swaggerUi', 'ui.bootstrap.modal'])
-	.provider('swaggerUiAuth', function() {
+	.provider('swaggerUiAuth', function () {
 
 		var authConfig;
 
-		this.configuration = function(config) {
+		this.configuration = function (config) {
 			if (config) {
 				authConfig = config;
 			}
 			return authConfig;
 		};
 
-		this.$get = function($q, $uibModal) {
+		this.$get = function ($q, $uibModal) {
 
 			return {
 
-				configuration: function(config) {
+				configuration: function (config) {
 					if (config) {
 						authConfig = config;
 					}
@@ -33,25 +33,25 @@ angular
 				/**
 				 * Module entry point
 				 */
-				execute: function(data) {
+				execute: function (data) {
 					var deferred = $q.defer(),
 						modalInstance = $uibModal.open({
 							templateUrl: 'templates/auth/modal-auth.html',
 							controller: 'SwaggerUiModalAuthCtrl',
 							backdrop: 'static',
 							resolve: {
-								securityDefinitions: function() {
+								securityDefinitions: function () {
 									return data.securityDefinitions;
 								},
-								authConfig: function() {
+								authConfig: function () {
 									return authConfig;
 								}
 							}
 						});
 
-					modalInstance.result.then(function() {
+					modalInstance.result.then(function () {
 						// validated, do nothing
-					}, function() {
+					}, function () {
 						// dismissed, do nothing
 					});
 
@@ -63,13 +63,13 @@ angular
 		};
 
 	})
-	.controller('SwaggerUiModalAuthCtrl', function($scope, $http, $window, securityDefinitions, authConfig) {
+	.controller('SwaggerUiModalAuthCtrl', function ($scope, $http, $window, securityDefinitions, authConfig) {
 
 		$scope.form = {};
 		$scope.securityDefinitions = securityDefinitions;
 		$scope.error = {};
 
-		$scope.authorize = function(key) {
+		$scope.authorize = function (key) {
 			var security = securityDefinitions[key];
 			$scope.inProgress = true;
 			$scope.error[key] = false;
@@ -101,9 +101,9 @@ angular
 			}
 		};
 
-		$scope.logout = function(key) {
+		$scope.logout = function (key) {
 			var security = securityDefinitions[key];
-			angular.forEach(['apiKey', 'clientId', 'clientSecret', 'login', 'password', 'selectedScopes', 'tokenType', 'accessToken'], function(key) {
+			angular.forEach(['apiKey', 'clientId', 'clientSecret', 'login', 'password', 'selectedScopes', 'tokenType', 'accessToken'], function (key) {
 				delete security[key];
 			});
 			security.valid = false;
@@ -112,7 +112,7 @@ angular
 		};
 
 		function init() {
-			angular.forEach(securityDefinitions, function(security, key) {
+			angular.forEach(securityDefinitions, function (security, key) {
 				security.authByLogin = security.type === 'basic' || (security.type === 'oauth2' && security.flow === 'password');
 				security.authByClientId = security.type === 'oauth2' && ['application', 'clientCredentials', 'accessCode', 'implicit'].indexOf(security.flow) > -1;
 				security.authByClientSecret = security.authByClientId && security.flow !== 'implicit';
@@ -165,7 +165,7 @@ angular
 
 		function oauth2AuthorizationCode(key) {
 			var security = securityDefinitions[key];
-			oauth(security, 'code', function(data) {
+			oauth(security, 'code', function (data) {
 				security.clientId = $scope.form[key].clientId;
 				security.clientSecret = $scope.form[key].clientSecret;
 				getToken(key, 'grant_type=authorization_code&code=' + data.code + '&redirect_uri=' + data.redirectUrl, security.clientId, security.clientSecret);
@@ -174,7 +174,7 @@ angular
 
 		function oauth2Implicit(key) {
 			var security = securityDefinitions[key];
-			oauth(key, 'token', function(data) {
+			oauth(key, 'token', function (data) {
 				security.tokenType = data.token_type;
 				security.accessToken = data.access_token;
 				security.valid = true;
@@ -194,21 +194,21 @@ angular
 				creds = authConfig && authConfig[key] || null;
 
 			$http({
-					method: 'POST',
-					url: security.tokenUrl,
-					headers: {
-						Authorization: 'Basic ' + btoa(id + ':' + secret),
-						'Content-Type': 'application/x-www-form-urlencoded'
-					},
-					data: body,
-					params: creds && creds.queryParams
-				})
-				.then(function(resp) {
+				method: 'POST',
+				url: security.tokenUrl,
+				headers: {
+					Authorization: 'Basic ' + btoa(id + ':' + secret),
+					'Content-Type': 'application/x-www-form-urlencoded'
+				},
+				data: body,
+				params: creds && creds.queryParams
+			})
+				.then(function (resp) {
 					security.tokenType = resp.data.token_type;
 					security.accessToken = resp.data.access_token;
 					security.valid = true;
 				})
-				.catch(function(error) {
+				.catch(function (error) {
 					$scope.inProgress = false;
 					$scope.error[key] = 'failed to get oauth access token: ' + (error.message || error.status);
 				});
@@ -233,7 +233,7 @@ angular
 			}
 			if ($scope.form[key].selectedScopes) {
 				var scopes = [];
-				angular.forEach($scope.form[key].selectedScopes, function(selected, name) {
+				angular.forEach($scope.form[key].selectedScopes, function (selected, name) {
 					if (selected === true) {
 						scopes.push(name);
 					}
@@ -242,7 +242,7 @@ angular
 			}
 			query.push('state=' + encodeURIComponent(state));
 			if (creds && creds.queryParams) {
-				angular.forEach(creds.queryParams, function(value, name) {
+				angular.forEach(creds.queryParams, function (value, name) {
 					query.push(name + '=' + encodeURIComponent(value));
 				});
 			}
@@ -251,7 +251,7 @@ angular
 				redirectUrl: redirectUrl,
 				flow: security.flow,
 				callback: callback,
-				error: function(error) {
+				error: function (error) {
 					$scope.error[key] = error.message;
 				}
 			};
@@ -261,19 +261,19 @@ angular
 		init();
 
 	})
-	.service('__swaggerUiAuthInit', function($q, swaggerUiAuth) {
+	.service('__swaggerUiAuthInit', function ($q, swaggerUiAuth) {
 
 		/** !!!!!!!!!!!!!!!!! SHOULD NOT BE USED BY ANYONE !!!!!!!!!!!!!!!! **/
 
 		/**
 		 * Module entry point
 		 */
-		this.execute = function(data) {
+		this.execute = function (data) {
 			var deferred = $q.defer(),
 				authConfig = swaggerUiAuth.configuration();
 
 			if (data && data.openApiSpec && authConfig) {
-				angular.forEach(data.openApiSpec.securityDefinitions, function(securityDefinition, key) {
+				angular.forEach(data.openApiSpec.securityDefinitions, function (securityDefinition, key) {
 					var creds = authConfig[key] || null;
 					if (creds) {
 						switch (securityDefinition.type) {
@@ -299,7 +299,7 @@ angular
 		};
 
 	})
-	.run(function(swaggerModules, swaggerUiAuth, __swaggerUiAuthInit) {
+	.run(function (swaggerModules, swaggerUiAuth, __swaggerUiAuthInit) {
 		swaggerModules.add(swaggerModules.AUTH, swaggerUiAuth, 1);
 		swaggerModules.add(swaggerModules.BEFORE_DISPLAY, __swaggerUiAuthInit, 1);
 	});

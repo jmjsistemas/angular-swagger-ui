@@ -14,6 +14,10 @@
         "rest",
         "documentation"
     ],
+    "scripts": {
+        "start": "grunt dev",
+        "build": "grunt dist"
+    },
     "author": {
         "name": "Mathieu Alès"
     },
